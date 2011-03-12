@@ -219,8 +219,6 @@ def dispChess(screen):
         for case in passed:
             highlightCase(app, case, (128, 128, 128))
     pygame.display.flip()
-def goBack():
-    pass
 def caseChoosed(case):
     global phrase
     global passed
@@ -228,10 +226,11 @@ def caseChoosed(case):
     j = case[1]
     passed.append([i, j])
     phrase = phrase + chessplate[i][j]
-    print phrase
 def dispChoiceForCase(screen, case):
     global lastPossibilities
+    global phrase
     dispChess(screen)
+    print phrase
     print "Choose the next case:"
     lastPossibilities = getPossibilities(case, passed)
     for index in range(len(lastPossibilities)):
@@ -303,6 +302,18 @@ if __name__ == '__main__':
                 elif(event.key == K_KP8):
                     caseChoosed(lastPossibilities[8])
                     dispChoiceForCase(app, lastPossibilities[8])
+                elif(event.key == K_BACKSPACE):
+                    if(len(passed ) > 1):
+                        phrase = phrase[:-1]
+                        passed = passed[:-1]
+                        #caseChoosed(passed[-1])
+                        dispChoiceForCase(app, passed[-1])
+                    else:
+                        passed = []
+                        phrase = []
+                        caseChoosed(START_POINT)
+                        dispChoiceForCase(app, START_POINT)
+                    
     
     
     
