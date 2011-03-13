@@ -68,88 +68,6 @@ def rotinv90(tableau):
 			nouveau[hauteur - 1 - n_colonne][n_ligne] = tableau[n_ligne][n_colonne]
 	return nouveau
 
-#chessplateRot = rot90(chessplate)
-#chessplateinvRot = rotinv90(chessplate)
-
-#for i in message_p2:
-#	print decodeMess(i,chessplateRot)
-
-#Navigation
-
-def TestMonte(start):
-	if(start[0] - 1 <0 ): return False
-	else: return True
-	
-def TestDescend(start):
-	if(start[0] + 1 > 7): return False
-	else: return True
-	
-def TestGauche(start):
-	if(start[1] - 1 < 0): return False
-	else: return True
-
-def TestDroite(start):
-	if(start[1] + 1 > 7): return False
-	else: return True
-
-
-def Monte(start):
-	if(start[0] - 1 <0 ): return start
-	else: return [start[0]-1,start[1]]
-	
-def Descend(start):
-	if(start[0] + 1 > 7): return start
-	else: return [start[0]+1,start[1]]
-	
-def Gauche(start):
-	if(start[1] - 1 < 0): return start
-	else: return [start[0],start[1] - 1]
-
-def Droite(start):
-	if(start[1] + 1 > 7): return start
-	else: return [start[0],start[1] + 1]
-	
-def isInt(coord,tableau):
-	try:
-		int(tableau[coord[0]][coord[1]])
-	except:
-		return False
-	else: return True
-
-
-
-def parseFromStartPoint(coord,tableau,path,path_forbid=[],passed=[]):
-	passed.append(coord)
-	path[-1].append(tableau[coord[0]][coord[1]])
-	print "Passed" +  passed.__str__()
-	
-	
-		
-	if TestMonte(coord) is False and not isInt(Monte(coord),tableau) and TestMonte(coord) not in passed:
-		path_forbid.append(Monte(coord))
-	if Monte(coord) not in path_forbid:
-		parseFromStartPoint(Monte(coord),tableau,path,path_forbid,passed)
-		
-			
-		
-
-	if(TestDescend(coord) is not False and not isInt(Descend(coord),tableau)):
-		if Descend(coord) not in path_forbid:
-			parseFromStartPoint(Monte(coord),tableau,path,path_forbid)
-	else :
-		path_forbid.append(Descend(coord))
-		
-
-	if TestGauche(coord) is False and not isInt(Gauche(coord),tableau) and TestGauche(coord) not in passed :
-		path_forbid.append(Gauche(coord))
-	if Gauche(coord) not in path_forbid:
-			parseFromStartPoint(Monte(coord),tableau,path,path_forbid,passed)
-	
-	if TestDroite(coord) is not False and not isInt(Droite(coord),tableau):
-			if Droite(coord) not in path_forbid:
-				parseFromStartPoint(Monte(coord),tableau,path,path_forbid)
-	else:
-		path_forbid.append(Droite(Forbid))
 def highlightCase(screen,case, color):
     i = case[0]
     j = case[1]
@@ -219,6 +137,8 @@ def dispChess(screen):
         for case in passed:
             highlightCase(app, case, (128, 128, 128))
     pygame.display.flip()
+    
+    
 def caseChoosed(case):
     global phrase
     global passed
@@ -226,20 +146,49 @@ def caseChoosed(case):
     j = case[1]
     passed.append([i, j])
     phrase = phrase + chessplate[i][j]
+    
 def dispChoiceForCase(screen, case):
     global lastPossibilities
     global phrase
     dispChess(screen)
     print phrase
     print "Choose the next case:"
-    lastPossibilities = getPossibilities(case, passed)
+    #lastPossibilities = getPossibilities(case,passed)
+    lastPossibilities = getNext(case,passed)
+    if lastPossibilities == 0:
+            print "Result : " + phrase
     for index in range(len(lastPossibilities)):
         i = lastPossibilities[index][0]
         j = lastPossibilities[index][1]
         highlightCase(screen, lastPossibilities[index], (255, 0, 255))
         print "[%i] %s Coord %s"%(index, chessplate[i][j],getChessCoord(i, j))
     highlightCase(app, case, (0, 0, 255))
-    
+
+def getNext(case,passed):
+	temp = passed[:]
+	possib = getPossibilities(case,temp)
+	temp.append(case)
+	next = []
+	for pos in possib:
+		next.append(len(getPossibilities(pos,temp)))
+	#print "Next Possibilities :" + next.__str__()
+	mini = next[0]
+	index = []
+	for i in range(len(next)):
+		if(next[i] < mini):
+			mini = next[i]
+	
+	#print "Mini:" + mini.__str__() 
+	for i in range(len(next)):
+		if next[i] == mini:
+			index.append(i)			
+	retour = []
+	for i in index:
+		retour.append(possib[i])
+	#print "Retour pour case:" + retour.__str__()
+	return retour
+		
+	
 if __name__ == '__main__':
 #param 
     caseSize = 50
@@ -268,6 +217,8 @@ if __name__ == '__main__':
     
     
     
+    
+    
     # Loop
     go_out = 1
     while (go_out):
@@ -275,44 +226,45 @@ if __name__ == '__main__':
             if event.type == QUIT:
                 go_out =0
             elif event.type == KEYDOWN:
-                if(event.key == K_KP0):
+                if(event.key == K_KP0 or event.key == K_0):
                     caseChoosed(lastPossibilities[0])
                     dispChoiceForCase(app, lastPossibilities[0])
-                elif(event.key == K_KP1):
+                elif(event.key == K_KP1 or event.key == K_1):
                     caseChoosed(lastPossibilities[1])
                     dispChoiceForCase(app, lastPossibilities[1])
-                elif(event.key == K_KP2):
+                elif(event.key == K_KP2 or event.key == K_2):
                     caseChoosed(lastPossibilities[2])
                     dispChoiceForCase(app, lastPossibilities[2])
-                elif(event.key == K_KP3):
+                elif(event.key == K_KP3 or event.key == K_3):
                     caseChoosed(lastPossibilities[3])
                     dispChoiceForCase(app, lastPossibilities[3])
-                elif(event.key == K_KP4):
+                elif(event.key == K_KP4 or event.key == K_4):
                     caseChoosed(lastPossibilities[4])
                     dispChoiceForCase(app, lastPossibilities[4])
-                elif(event.key == K_KP5):
+                elif(event.key == K_KP5 or event.key == K_5):
                     caseChoosed(lastPossibilities[5])
                     dispChoiceForCase(app, lastPossibilities[5])
-                elif(event.key == K_KP6):
+                elif(event.key == K_KP6 or event.key == K_6):
                     caseChoosed(lastPossibilities[6])
                     dispChoiceForCase(app, lastPossibilities[6])
-                elif(event.key == K_KP7):
+                elif(event.key == K_KP7 or event.key == K_7):
                     caseChoosed(lastPossibilities[7])
                     dispChoiceForCase(app, lastPossibilities[7])
-                elif(event.key == K_KP8):
+                elif(event.key == K_KP8 or event.key == K_8):
                     caseChoosed(lastPossibilities[8])
                     dispChoiceForCase(app, lastPossibilities[8])
                 elif(event.key == K_BACKSPACE):
                     if(len(passed ) > 1):
                         phrase = phrase[:-1]
                         passed = passed[:-1]
-                        #caseChoosed(passed[-1])
                         dispChoiceForCase(app, passed[-1])
                     else:
                         passed = []
-                        phrase = []
+                        phrase = ""
                         caseChoosed(START_POINT)
                         dispChoiceForCase(app, START_POINT)
+                else:
+                	pass
                     
     
     
